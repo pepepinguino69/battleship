@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+		<style>
+            ancho{display: flex;width:80vh}
+			.flex {
+				display: flex;
+				color: red;
+				background-color: yellow;
+				width: 80%;
+				justify-content: space-around;
+			}
+			.center {
+				align-items: center;
+				height: 20vh;
+			}
+			table,
+			th,
+			td {
+				border: 1px solid black;
+				border-collapse: collapse;
+			}
+			th,
+			td {
+				padding: 5px;
+			}
+			th {
+				text-align: left;
+			
+			.hidden 
+				    {
+                    visibility:hidden ;
+			}
+            .extrahidden{color:black;
+background-color: azure;}
+            .agregar{width:80vh;}
+		</style>
+	</head>
+	<body>
+        <h1>MVC</h1>
+        <div class="flex2">
+		<div id="form" class="hidden extrahidden flex">
+			<button>
+				<label for="fname">Nombre:</label>
+				<input type="text" id="fname" name="fname" value="" />
+				<label for="lname">Apellido:</label>
+				<input type="text" id="lname" name="lname" value="" />
+				<label for="dni">DNI:</label>
+
+				<input type="text" id="dni" name="dni" value="" />
+				<label for="fecha">Fecha:</label>
+				<input type="text" id="fecha" name="fecha" value="" /><br /><br />
+				
+                <label for="calle">Calle:</label>
+
+				<input type="text" id="calle" name="calle" value="" />
+				<label for="localidad">Localidad:</label>
+				<input type="text" id="localidad" name="localidad" value="" />
+                <label for="ciudad">Ciudad:</label>
+				<input type="text" id="ciudad" name="ciudad" value="" /><br /><br />
+				
+                
+                
+                <input type="submit" id="enviar" value="Submit" /><input type="button" id="cancel" value="Cancel" /></button><br /><br />
+                
+			</form>
+        
+           
+		</div>
+        </div>
+        <div class="ancho"><br /><br /><br />
+            <button id="agregar">Agregar</button></div>
+		<div id="tabla" class="flex center"></div>
+	</body>
+	<script>
+       
+	usuario();
+	obtener();
+    document.querySelector("#agregar").addEventListener("click", (e) => {
+	e.preventDefault();modificar(e.target.id)})
+    async function usuario() {
+		data = { username: "Ariel", password: "12345678" };
+		url = "http://localhost:8080/api/auth/signin";
+		myData = await fetch(url, {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(data),
+		});
+		console.log(myData);
+	}
+	async function obtener() {   
+	body = "";
+    let myObject =await  fetch('http://localhost:8080/api/pacientes/');
+	let myData =  await myObject.json();
+	let myObject2 =await  fetch('http://localhost:8080/api/domicilios/');
+	let myData2 =  await myObject2.json();
+    console.log(myData);
+	myData.forEach((e,i) => {
+		body += `<tr><td>${e.id}</td><td>${e.nombre}</td><td>${e.apellido}</td><td>${e.dni}</td><td>${e.fecha}</td><td>${myData2[i].calle}</td></><td><button id="modificar${e.id}">Modificar</button></td><td><button id="borrar${e.id}">Borrar</button></td></tr>`;
+	});
+	body = `<table><tr><th>id</th><th>nombre</th><th>apellido</th><th>dni</th><th>fecha alta</th><th>calle</th></tr><tbody>${body}</tbody><table>`;
+    pantalla = document.getElementById("tabla").innerHTML =`${body}`;
+	boton1 = [];
+	boton2 = [];
+	myData.forEach((paciente, index) => {
+	boton1[index] = document.querySelector(`#modificar${paciente.id}`).addEventListener("click", (e) => 
+    {e.preventDefault();
+	modificar(e.target.id);});
+	boton2[index] = document.querySelector(`#borrar${paciente.id}`).addEventListener("click", (e) => {
+		borrar(e.target.id);});
+       
+	});
+	}
+	function borrar(x) {
+		idModify = x.slice(-x.length + 6);
+		url2 = "http://localhost:8080/api/pacientes/" + idModify;
+		fetch(url2, { method: "DELETE" });
+		location.reload();
+	}
+	async function modificar(x) {
+    document.getElementById("form").classList.toggle('hidden')
+    method="POST"
+    if (x!="agregar"){
+	    idModify = x.slice(-x.length + 9);
+	    url2 = "http://localhost:8080/api/pacientes/" + idModify;
+        myObject = await fetch(url2);
+	    myData = await myObject.json();	
+	    lname.value = myData.apellido;
+	    fname.value = myData.nombre;
+	    dni.value = myData.dni;
+	    fecha.value = myData.fecha;
+        method="PUT"
+     }
+	document.querySelector("#enviar").addEventListener("click", (e) => {
+	e.preventDefault();document.getElementById("form").classList.toggle()
+	putObject = {};
+	putObject.nombre = fname.value;
+	putObject.apellido = lname.value;
+	putObject.dni = dni.value;
+	putObject.fecha = fecha.value;
+	newBody = JSON.stringify(putObject);
+	console.log(newBody);
+	fetch(url2, {
+		method: method,
+		headers: { "Content-Type": "application/json" },
+		body: newBody,
+	});
+	document.querySelector("#form").classList.toggle("hidden");
+	location.reload();
+	});}
+
+	</script>
+</html>
